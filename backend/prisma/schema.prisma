@@ -1,0 +1,131 @@
+// Gull Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProfileType {
+  ATHLETE
+  TEAM
+}
+
+enum PostType {
+  TEXT
+  IMAGE
+  VIDEO
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  profile   Profile?
+  posts     Post[]
+  likes     Like[]
+  comments  Comment[]
+}
+
+model Profile {
+  id          String      @id @default(uuid())
+  userId      String      @unique
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        ProfileType
+  name        String
+  bio         String?
+  location    String?
+  avatarUrl   String?
+  coverUrl    String?
+  
+  // Athlete specific
+  sport       String?
+  position    String?
+  birthDate   DateTime?
+  height      String?
+  weight      String?
+  
+  // Team specific
+  teamSize    Int?
+  founded     DateTime?
+  
+  skills      Skill[]
+  resume      Resume?
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Skill {
+  id          String   @id @default(uuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  name        String
+  level       Int      // 1-10
+  description String?
+  
+  createdAt   DateTime @default(now())
+}
+
+model Resume {
+  id          String   @id @default(uuid())
+  profileId   String   @unique
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  education   String?
+  experience  String?
+  achievements String?
+  certifications String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Post {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        PostType
+  content     String?
+  mediaUrl    String?
+  
+  likes       Like[]
+  comments    Comment[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Like {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([userId, postId])
+}
+
+model Comment {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  content     String
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

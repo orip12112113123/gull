@@ -84,6 +84,11 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Check if user signed up with Google
+    if (!user.password) {
+      return res.status(401).json({ error: 'Please sign in with Google' });
+    }
+
     // Verify password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
@@ -107,6 +112,51 @@ export const login = async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors });
     }
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const googleCallback = async (req: Request, res: Response) => {
+  try {
+    const user = req.user as any;
+
+    if (!user) {
+      return res.redirect('http://localhost:3000/login?error=auth_failed');
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
+      expiresIn: '7d',
+    });
+
+    // Redirect to frontend with token
+    res.redirect(`http://localhost:3000/auth/callback?token=${token}`);
+  } catch (error) {
+    console.error(error);
+    res.redirect('http://localhost:3000/login?error=server_error');
+  }
+};
+
+export const getMe = async (req: any, res: Response) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+      include: { profile: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        profile: user.profile,
+      },
+    });
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }

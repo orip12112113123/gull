@@ -8,14 +8,15 @@ A LinkedIn-style social platform connecting athletes, teams, and scouts.
 - **Team Profiles**: Represent sports teams and organizations
 - **Feed**: Share thoughts, photos, videos, and achievements
 - **Explore**: Discover talent and connect with the sports community
-- **Authentication**: Secure signup and login
+- **Authentication**: Email/password and Google OAuth sign-in
+- **Scout Profiles**: Agencies and scouts can discover and connect with athletes
 
 ## Tech Stack
 
 - **Frontend**: React, TypeScript, Tailwind CSS
 - **Backend**: Node.js, Express, TypeScript
 - **Database**: PostgreSQL with Prisma ORM
-- **Auth**: JWT
+- **Auth**: JWT + Google OAuth 2.0 (Passport.js)
 
 ## Getting Started
 
@@ -130,6 +131,44 @@ gull/
 - POST /api/posts/:id/like - Like a post
 - DELETE /api/posts/:id/like - Unlike a post
 - POST /api/posts/:id/comments - Comment on post
+
+## Sample Data
+
+To populate the database with sample profiles, run:
+
+\`\`\`bash
+cd backend
+npm run prisma:seed
+\`\`\`
+
+This creates:
+- **8 Athlete Profiles**: Ages 15-30, male and female
+  - Soccer players (Forward, Midfielder, Goalkeeper)
+  - Basketball players (Point Guard, Shooting Guard, Power Forward)
+  - Runners (100m, 400m sprints)
+- **3 Scout/Agency Profiles**: Sports agencies and talent scouts
+
+All accounts use password: `password123`
+
+Sample athletes include:
+- Maria Silva (17, Soccer, Brazil)
+- James Thompson (22, Basketball, USA)
+- Sarah Johnson (19, Running, UK)
+- Luis Garcia (25, Soccer, Spain)
+- Emma Wilson (21, Basketball, Australia)
+- David Kim (15, Running, South Korea)
+- Sophia Martinez (28, Soccer, Spain)
+- Michael Brown (30, Basketball, USA)
+
+## Deployment
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions on deploying to Vercel.
+
+Quick deploy:
+\`\`\`bash
+npm install -g vercel
+vercel
+\`\`\`
 
 ## Business Model
 
